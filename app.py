@@ -4,16 +4,25 @@ from io import BytesIO
 from datetime import datetime
 
 # --- Configurações da Página (Logo, Favicon e Título) ---
-# IMPORTANTE: Substitua os caminhos pelos nomes reais dos seus arquivos de imagem.
-# Os arquivos devem estar na mesma pasta da aplicação (/var/www/upload).
 st.set_page_config(
     layout="wide", 
     page_title="Processador de Resultados",
-    page_icon="/var/www/upload/favicon.png" # Ex: "favicon.png"
+    page_icon="favicon.png" # Ex: "favicon.png"
 )
 
 # Adiciona o logo na barra lateral
-st.logo("/var/www/upload/logo.png") # Ex: "logo_agromarkers.png"
+st.logo("logo.png") # Ex: "logo_agromarkers.png"
+
+# --- CSS para Ocultar a Dica do Formulário ---
+# Este bloco de CSS esconde a dica "Press Enter to submit form"
+st.markdown("""
+    <style>
+        [data-testid="stFormSubmitButtonHint"] {
+            display: none !important;
+        }
+    </style>
+""", unsafe_allow_html=True)
+
 
 # --- Funções Auxiliares ---
 
@@ -60,7 +69,7 @@ def initialize_processing(uploaded_file):
         
         if 'Call' in df.columns:
             df['Resultado'] = df['Call'].copy()
-            replacements = {'X:X': 'POS:POS', 'Y:X': 'NEG:POS', 'Y:Y': 'NEG:NEG', '?': 'FAIL'}
+            replacements = {'X:X': 'POS:POS', 'X:Y': 'NEG:POS', 'Y:Y': 'NEG:NEG', '?': 'FAIL'}
             df['Resultado'] = df['Resultado'].astype(str).replace(replacements)
         else:
             st.error("Erro: A coluna 'Call' não foi encontrada. O processo não pode continuar.")
@@ -120,15 +129,22 @@ if 'step' in st.session_state and st.session_state.step == 'mapping':
             submit_button = st.form_submit_button(label='Aplicar Mapeamento e Continuar')
 
             if submit_button:
-                for daughter_plate, values in mapping_data.items():
-                    mask = df['DaughterPlate'] == daughter_plate
-                    df.loc[mask, 'Placa'] = values['Placa']
-                    df.loc[mask, 'Teste'] = values['Teste']
-                
-                st.session_state.df = df
-                st.session_state.step = 'final_info'
-                st.success("Mapeamento aplicado com sucesso!")
-                st.rerun()
+                # CONDIÇÃO: Verifica se todos os campos foram preenchidos
+                all_fields_filled = all(values['Placa'] and values['Teste'] for values in mapping_data.values())
+
+                if all_fields_filled:
+                    for daughter_plate, values in mapping_data.items():
+                        mask = df['DaughterPlate'] == daughter_plate
+                        df.loc[mask, 'Placa'] = values['Placa']
+                        df.loc[mask, 'Teste'] = values['Teste']
+                    
+                    st.session_state.df = df
+                    st.session_state.step = 'final_info'
+                    st.success("Mapeamento aplicado com sucesso!")
+                    st.rerun()
+                else:
+                    # Exibe um aviso se algum campo estiver vazio
+                    st.warning("Atenção: Por favor, preencha todos os campos de 'Placa' e 'Teste' antes de continuar.")
     else:
         st.error("Erro: A coluna 'DaughterPlate' não foi encontrada no DataFrame.")
 
@@ -142,6 +158,7 @@ if 'step' in st.session_state and st.session_state.step == 'final_info':
         submit_final = st.form_submit_button("Gerar Arquivo Final")
 
         if submit_final:
+            # CONDIÇÃO: Verifica se os campos de empresa e projeto foram preenchidos
             if empresa and projeto:
                 df['Empresa'] = empresa
                 df['Projeto'] = projeto
@@ -154,15 +171,15 @@ if 'step' in st.session_state and st.session_state.step == 'final_info':
                 st.session_state.step = 'download'
                 st.rerun()
             else:
-                st.warning("Por favor, preencha os campos Empresa e Projeto.")
+                # Exibe um aviso se algum campo estiver vazio
+                st.warning("Atenção: Por favor, preencha os campos 'Nome da Empresa' e 'Nome do Projeto'.")
 
 if 'step' in st.session_state and st.session_state.step == 'download':
     st.header("Passo 4: Revisão Final e Download")
     df = st.session_state.df
     
-    if 'SubjectID' in df.columns:
-        df = df.drop(columns=['SubjectID','X','Y','DaughterPlate','MasterPlate','Call','SNPID'], errors='ignore')
-        st.info("Colunas antigas foram removidas para fazer o pivot dos dados.")
+    df = df.drop(columns=['SubjectID','X','Y','DaughterPlate','MasterPlate','Call','SNPID'], errors='ignore')
+    st.info("Colunas desnecessárias foram removidas para a tabela final.")
 
     final_df = df
     try:
