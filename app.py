@@ -60,7 +60,7 @@ def initialize_processing(uploaded_file):
         
         if 'Call' in df.columns:
             df['Resultado'] = df['Call'].copy()
-            replacements = {'X:X': 'POS:POS', 'X:Y': 'NEG:POS', 'Y:Y': 'NEG:NEG', '?': 'FAIL'}
+            replacements = {'X:X': 'POS:POS', 'Y:X': 'NEG:POS', 'Y:Y': 'NEG:NEG', '?': 'FAIL'}
             df['Resultado'] = df['Resultado'].astype(str).replace(replacements)
         else:
             st.error("Erro: A coluna 'Call' não foi encontrada. O processo não pode continuar.")
