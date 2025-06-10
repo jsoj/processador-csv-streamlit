@@ -14,8 +14,8 @@ Uma aplicação web criada com Streamlit e Python para automatizar o processo de
 
 1.  Clone este repositório:
     ```bash
-    git clone [https://github.com/jsoj/processador-csv-streamlit.git](https://github.com/jsoj/processador-csv-streamlit.git)
-    ```
+    git clone https://github.com/jsoj/processador-csv-streamlit.git
+    
 2.  Navegue até a pasta do projeto:
     ```bash
     cd upload
