@@ -14,11 +14,11 @@ Uma aplicação web criada com Streamlit e Python para automatizar o processo de
 
 1.  Clone este repositório:
     ```bash
-    git clone [https://github.com/SEU-USUARIO/NOME-DO-REPOSITORIO.git](https://github.com/SEU-USUARIO/NOME-DO-REPOSITORIO.git)
+    git clone [https://github.com/jsoj/processador-csv-streamlit.git](https://github.com/jsoj/processador-csv-streamlit.git)
     ```
 2.  Navegue até a pasta do projeto:
     ```bash
-    cd NOME-DO-REPOSITORIO
+    cd upload
     ```
 3.  Instale as dependências:
     ```bash
@@ -28,17 +28,3 @@ Uma aplicação web criada com Streamlit e Python para automatizar o processo de
     ```bash
     streamlit run app.py
     ```
-
-#### **5. Inicie o Repositório Git Local e Faça seu Primeiro Commit**
-
-Agora, vamos usar o Git. Abra seu terminal **dentro da pasta do projeto**.
-
-```bash
-# 1. Inicia um repositório Git na pasta atual
-git init
-
-# 2. Adiciona todos os arquivos para serem monitorados pelo Git
-git add .
-
-# 3. Salva uma "fotografia" do estado atual dos arquivos (commit)
-git commit -m "Commit inicial: Adiciona a primeira versão da aplicação e arquivos de configuração"
